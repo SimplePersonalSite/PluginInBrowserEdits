@@ -1,0 +1,25 @@
+.sps-ibe-editable-markup {
+  position: relative;
+  border: 1px solid transparent;
+}
+.sps-ibe-editable-markup:hover {
+  border: 1px solid #eee;
+}
+.sps-ibe-edit-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px;
+  background-color: rgba(200, 200, 200, 0.3);
+  color: rgba(0, 0, 0, 0.3);
+}
+.sps-ibe-edit-btn:hover {
+  background-color: rgba(200, 200, 200, 1.0);
+  color: inherit;
+  cursor: pointer;
+}
+
+#sps-ibe-file-text {
+  width: 400px;
+  height: 200px;
+}
