@@ -1,5 +1,5 @@
 var PluginInBrowserEdits = Util.createSingleton('PluginInBrowserEdits', function() {
-  this._editing = false;
+  this._editing = null;
   this._saved = false;
 });
 PluginInBrowserEdits.plugin = function plugin() {
@@ -25,14 +25,18 @@ PluginInBrowserEdits.prototype.init = function init() {
   SimplePersonalSite.Context.prototype.render_md_file = new_render;
 };
 PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
-  if (this._editing) {
-    return alert('already editing');
-  }
-  this._editing = true;
   var container = evt.target;
   while (container !== null && !container.classList.contains('sps-ibe-editable-markup')) {
     container = container.parentNode;
   }
+  if (this._editing !== null) {
+    if (this._editing !== container) {
+      alert('already editing');
+    }
+    return;
+  }
+  this._editing = container;
+
   SimplePersonalSite.Util.assert(container !== null);
   var filename = container.dataset.filename;
 
@@ -65,7 +69,7 @@ PluginInBrowserEdits.prototype.clickSave = function clickSave(evt) {
   SimplePersonalSite.Util.pAjax(url, 'post', msg)
     .then(function() {
       SimplePersonalSite.App.getInstance().refresh();
-      self._editing = false;
+      self._editing = null;
     })
     .catch(console.error.bind(console));
 };
