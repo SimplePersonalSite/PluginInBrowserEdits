@@ -12,7 +12,15 @@ PluginInBrowserEdits.autoGrow = function autoGrow(elm) {
   elm.style.height = "auto";
   elm.style.height = (elm.scrollHeight)+"px";
 };
+PluginInBrowserEdits.defaultConfig = {
+  tabSize: 2,
+  tabChar: ' ',
+};
+PluginInBrowserEdits.prototype.setConfig = function setConfig(config) {
+  this.config = _.defaults({}, config, this.config, PluginInBrowserEdits.defaultConfig);
+};
 PluginInBrowserEdits.prototype.init = function init() {
+  this.setConfig();
   var old_render = SimplePersonalSite.Context.prototype.render_md_file;
   var new_render = function render_md() {
     var html = old_render.apply(this, arguments);
@@ -23,6 +31,34 @@ PluginInBrowserEdits.prototype.init = function init() {
         'class="sps-ibe-edit-btn">' + filename + '</div>' + html + '</div>';
   };
   SimplePersonalSite.Context.prototype.render_md_file = new_render;
+};
+PluginInBrowserEdits.prototype.onKeyDown = function onKeyDown(evt, elm) {
+  switch (evt.keyCode) {
+    case 9: return this.doTabDown(evt, elm);
+  }
+};
+PluginInBrowserEdits.prototype.doTabDown = function doTabDown(evt, elm) {
+  var start = elm.selectionStart;
+  var end = elm.selectionEnd;
+  var value = evt.target.value;
+  var tabSize = this.config.tabSize;
+  var tabChar = this.config.tabChar;
+
+  if (evt.shiftKey) {
+    if (start != end) {
+      // What is the expected behavior if the user presses shift+tab while selecting text?
+    } else {
+      for (var i = 0; i < tabSize && value.charAt(start - i - 1) === tabChar; ++i) {
+        document.execCommand('delete', false);
+      }
+    }
+  } else {
+    for (var i = 0; i < tabSize; ++i) {
+      document.execCommand('insertText', false, tabChar);
+    }
+  }
+
+  evt.preventDefault();
 };
 PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
   var container = evt.target;
@@ -46,7 +82,9 @@ PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
         container.innerHTML =
             '<div class="sps-ibe-save-btn">save</div><textarea ' +
             'onblur="PluginInBrowserEdits.getInstance().clickSave()" ' +
-            'oninput="PluginInBrowserEdits.autoGrow(this)" id="sps-ibe-file-text">' +
+            'oninput="PluginInBrowserEdits.autoGrow(this)" ' +
+            'onkeydown="PluginInBrowserEdits.getInstance().onKeyDown(event, this)" ' +
+            'id="sps-ibe-file-text">' +
             md + '</textarea>';
         container.childNodes[1].focus();
         PluginInBrowserEdits.autoGrow(container.childNodes[1]);
