@@ -78,7 +78,8 @@ PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
 
   var self = this;
   SimplePersonalSite.Util.pFetch(filename)
-      .then(function(md) {
+      .then(Util.escapeHtml)
+      .then(function render(md) {
         container.innerHTML =
             '<div class="sps-ibe-save-btn">save</div><textarea ' +
             'onblur="PluginInBrowserEdits.getInstance().clickSave()" ' +
