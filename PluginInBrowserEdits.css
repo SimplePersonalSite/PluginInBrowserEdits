@@ -1,9 +1,5 @@
 .sps-ibe-editable-markup {
   position: relative;
-  border: 1px solid transparent;
-}
-.sps-ibe-editable-markup:hover {
-  border: 1px solid #eee;
 }
 .sps-ibe-edit-btn, .sps-ibe-save-btn {
   position: absolute;

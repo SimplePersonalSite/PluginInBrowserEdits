@@ -90,6 +90,17 @@ PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
     }
     container = container.parentNode;
   }
+  var scrolledParent = container;
+  while (scrolledParent !== null && scrolledParent.scrollTop === 0) {
+    scrolledParent = scrolledParent.parentNode;
+  }
+  if (scrolledParent === document) {
+    scrolledParent = null;
+  }
+  // TODO probably most data should be saved in this instead of on the element.
+  // this element can't be saved on the created element as a data field.
+  this._editing_scrolledParent = scrolledParent;
+  var scrolledParentScroll = scrolledParent === null ? null : scrolledParent.scrollTop;
   Util.assert(container.children[0].classList.contains('sps-ibe-edit-btn'));
   container.children[0].style.display = 'none';
   if (this._editing !== null) {
@@ -124,6 +135,7 @@ PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
             'data-md="' + Util.escapeHtml(md) + '" ' +
             'data-startpos=' + start + ' ' +
             'data-endpos=' + end + ' ' +
+            'data-scrolledparentscroll=' + scrolledParentScroll + ' ' +
             'data-filename="' + container.dataset.filename + '" ' +
             'id="sps-ibe-file-text">' +
             Util.escapeHtml(md.substring(start, end)) + '</textarea>' + 
@@ -156,7 +168,18 @@ PluginInBrowserEdits.prototype.clickSave = function clickSave(evt) {
   var self = this;
   SimplePersonalSite.Util.pAjax(url, 'post', msg)
     .then(function() {
-      SimplePersonalSite.App.getInstance().refresh();
+      var scrolledParent = self._editing_scrolledParent;
+      var scrolledParentScroll = elm.dataset['scrolledparentscroll'];
+      SimplePersonalSite.App.getInstance().refresh().then(function() {
+        if (scrolledParent !== null) {
+          // at 4ms, sometimes the body would scroll back up to 0 on my pc.
+          // lets try 30ms since the tearing isn't too bad and is actually expected at this instant.
+          setTimeout(function() {
+            scrolledParentScroll = parseInt(scrolledParentScroll);
+            scrolledParent.scrollTop = scrolledParentScroll;
+          }, 30);
+        }
+      });
       self._editing = null;
     })
     .catch(console.error.bind(console));
