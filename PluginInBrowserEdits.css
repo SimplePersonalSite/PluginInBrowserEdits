@@ -12,6 +12,7 @@
   padding: 5px;
   background-color: rgba(200, 200, 200, 0.3);
   color: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 .sps-ibe-edit-btn:hover, .sps-ibe-save-btn:hover {
   background-color: rgba(200, 200, 200, 1.0);
@@ -24,4 +25,8 @@
   resize: none;
   overflow: hidden;
   height: auto;
+}
+
+.sps-ibe-editable-markup-edit-section {
+  position: relative;
 }
