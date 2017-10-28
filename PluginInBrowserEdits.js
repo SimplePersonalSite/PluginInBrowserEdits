@@ -20,6 +20,10 @@ PluginInBrowserEdits.plugin = function plugin(app) {
  * The port the backend edit server is running on.
  */
 PluginInBrowserEdits.port = 4113;
+/**
+ * Path to post to (useful for reverse proxying).
+ */
+PluginInBrowserEdits.path = '';
 
 /**
  * Grow an element to its natural height.
@@ -147,6 +151,11 @@ PluginInBrowserEdits.prototype.clickEdit = function clickEdit(evt) {
       .catch(console.error.bind(console));
 };
 
+PluginInBrowserEdits.getPostUrl = function getPostUrl() {
+  return window.location.protocol + '//' + window.location.hostname +
+      ':' + PluginInBrowserEdits.port + PluginInBrowserEdits.path;
+}
+
 /**
  * Function called when the user clicks save or clicks outside of the edit area.
  */
@@ -163,8 +172,7 @@ PluginInBrowserEdits.prototype.clickSave = function clickSave(evt) {
   var newMd = fullMd.substring(0, start) + sectionMd
       + fullMd.substring(end, fullMd.length);
   var msg = JSON.stringify({'filename': elm.dataset.filename, 'content': newMd});
-  var url = window.location.protocol + '//' + window.location.hostname + ':' +
-      PluginInBrowserEdits.port;
+  var url = PluginInBrowserEdits.getPostUrl();
   var self = this;
   SimplePersonalSite.Util.pAjax(url, 'post', msg)
     .then(function() {
