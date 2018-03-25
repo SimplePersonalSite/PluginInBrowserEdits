@@ -13,13 +13,13 @@ var PluginInBrowserEdits = Util.createSingleton('PluginInBrowserEdits', function
  */
 PluginInBrowserEdits.plugin = function plugin(app) {
   PluginInBrowserEdits.getInstance().init(app);
-  SimplePersonalSite.Util.linkCss('PluginInBrowserEdits.css');
+  SimplePersonalSite.Util.linkCss('plugins/PluginInBrowserEdits.css');
 };
 
 /**
  * The port the backend edit server is running on.
  */
-PluginInBrowserEdits.port = 4113;
+PluginInBrowserEdits.port = 8000;
 /**
  * Path to post to (useful for reverse proxying).
  */
@@ -30,12 +30,24 @@ PluginInBrowserEdits.path = '';
  * http://stackoverflow.com/a/24676492/1433127
  */
 PluginInBrowserEdits.autoGrow = function autoGrow(elm) {
+  var scrolledParent = elm;
+  do  {
+    scrolledParent = scrolledParent.parentNode;
+  } while (scrolledParent !== null && scrolledParent.scrollTop === 0);
+  if (scrolledParent !== null) {
+    var scroll = scrolledParent.scrollTop;
+  }
+
   elm.style.height = "auto";
   elm.style.height = (elm.scrollHeight)+"px";
+
+  if (scrolledParent !== null) {
+    scrolledParent.scrollTop = scroll;
+  }
 };
 
 /**
- * The default parameters for this plugi.
+ * The default parameters for this plugin.
  */
 PluginInBrowserEdits.defaultConfig = {
   /** if you press tab, how many "tabChars" to insert? */
@@ -171,7 +183,10 @@ PluginInBrowserEdits.prototype.clickSave = function clickSave(evt) {
   var end = parseInt(elm.dataset['endpos']);
   var newMd = fullMd.substring(0, start) + sectionMd
       + fullMd.substring(end, fullMd.length);
-  var msg = JSON.stringify({'filename': elm.dataset.filename, 'content': newMd});
+  var msg = JSON.stringify({
+    'command': 'edit',
+    'filename': elm.dataset.filename,
+    'content': newMd});
   var url = PluginInBrowserEdits.getPostUrl();
   var self = this;
   SimplePersonalSite.Util.pAjax(url, 'post', msg)
